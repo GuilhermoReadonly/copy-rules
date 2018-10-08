@@ -1,0 +1,8 @@
+[package]
+name = "copy_rules"
+version = "0.1.0"
+authors = ["gra"]
+
+[dependencies]
+fs_extra = "1.1.0"
+hyper = "0.12"
