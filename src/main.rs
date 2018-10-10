@@ -22,22 +22,26 @@ fn main() {
         println!("bytes copied : {} / {}", process_info.copied_bytes, process_info.total_bytes);
         fs_extra::dir::TransitProcessResult::ContinueOrAbort
     };
-     // copy dir1 and file1.txt to target/dir1 and target/file1.txt
-     let mut from_paths = Vec::new();
-     from_paths.push(DIR_FROM);
+     let from_paths = vec![DIR_FROM];
      let res = copy_items_with_progress(&from_paths, DIR_TO, &options, handle);
 
      match res {
-         Result::Err(e) => println!("Error !!! {}", e),
-         _ => println!("Copied successfully!!!"),
+         Err(e) => println!("Error !!! {}", e),
+         Ok(s) => println!("Copied successfully {} bytes !", s),
      }
 
     println!("Start refresh rules by calling API");
 
     let client = reqwest::Client::new();
-    let res = client.post(URL_CONNECTOR)
-        .body("")
-        .send();
+    let res = client.delete(URL_CONNECTOR).send();
+
+    match  res {
+        Ok(s) =>
+        {
+            println!("Result {} for calling {}", s.status(), s.url());
+        },
+        Err(e) => eprintln!("Error : {}", e.to_string()),
+    }
 
     println!("All done, that's all folks...");
 }
