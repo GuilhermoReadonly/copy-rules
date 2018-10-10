@@ -1,15 +1,10 @@
 extern crate fs_extra;
-extern crate hyper;
+extern crate reqwest;
 
 use fs_extra::dir;
 use fs_extra::TransitProcess;
 use fs_extra::copy_items_with_progress;
-use hyper::Client;
-use hyper::Request;
-use hyper::Method;
-use hyper::Body;
-use hyper::rt;
-use hyper::rt::Future;
+
 
 fn main() {
     println!("Start copy");
@@ -39,22 +34,10 @@ fn main() {
 
     println!("Start refresh rules by calling API");
 
-    let client = Client::new();
-
-    let uri: hyper::Uri = URL_CONNECTOR.parse().unwrap();
-
-    let mut req = Request::new(Body::empty());
-    *req.method_mut() = Method::DELETE;
-    *req.uri_mut() = uri.clone();
-
-    let response = client.request(req).map(|res| {
-        println!("Response: {}", res.status());
-    })
-    .map_err(|err| {
-        eprintln!("Error: {}", err);
-    });
-
-    rt::run(response);
+    let client = reqwest::Client::new();
+    let res = client.post(URL_CONNECTOR)
+        .body("")
+        .send();
 
     println!("All done, that's all folks...");
 }
