@@ -1,47 +1,43 @@
-extern crate fs_extra;
-extern crate reqwest;
+extern crate java_properties;
 
-use fs_extra::dir;
-use fs_extra::TransitProcess;
-use fs_extra::copy_items_with_progress;
+use std::fs::File;
+use std::io::BufReader;
 
+mod fs;
+mod api;
+
+const PROPERTIES_FILE: &str = "./copy_rules.properties";
 
 fn main() {
-    println!("Start copy");
+    // Reading properties
+    match File::open(PROPERTIES_FILE){
+        Ok(f)=>{
+            match java_properties::read(BufReader::new(f)){
+                Ok(properties)=>{
+                    println!("DEBUG {:?}",properties);
 
-    const DIR_FROM: &str = "/mnt/c/Users/gra/IdeaProjects/SCPAS/services/rules/rule-config/rules-config-connector/src/main/resources/rules/";
-    const DIR_TO: &str = "/mnt/c/Users/gra/IdeaProjects/SCPAS/docker/compose/target/demo/deliverables/volumes/connector/";
-    const URL_CONNECTOR: &str = "http://localhost:10089/rules-config-server/rules/cache";
+                    process_one_target(properties.get("CONNECTOR.DIR_FROM").unwrap(), properties.get("CONNECTOR.DIR_TO").unwrap(), properties.get("CONNECTOR.URL").unwrap());
+                    process_one_target(properties.get("BACKEND.DIR_FROM").unwrap(), properties.get("BACKEND.DIR_TO").unwrap(), properties.get("BACKEND.URL").unwrap());
 
-    println!("From folder {}", DIR_FROM);
-    println!("To folder {}", DIR_TO);
-
-    let mut options = dir::CopyOptions::new(); //Initialize default values for CopyOptions
-    options.overwrite = true;
-    let handle = |process_info: TransitProcess| {
-        println!("bytes copied : {} / {}", process_info.copied_bytes, process_info.total_bytes);
-        fs_extra::dir::TransitProcessResult::ContinueOrAbort
-    };
-     let from_paths = vec![DIR_FROM];
-     let res = copy_items_with_progress(&from_paths, DIR_TO, &options, handle);
-
-     match res {
-         Err(e) => println!("Error !!! {}", e),
-         Ok(s) => println!("Copied successfully {} bytes !", s),
-     }
-
-    println!("Start refresh rules by calling API");
-
-    let client = reqwest::Client::new();
-    let res = client.delete(URL_CONNECTOR).send();
-
-    match  res {
-        Ok(s) =>
-        {
-            println!("Result {} for calling {}", s.status(), s.url());
+                    println!("All done, that's all folks ! <3");
+                    
+                },
+                Err(e) =>{
+                    eprintln!("An error occured while reading properties from file {} : {}", PROPERTIES_FILE, e);
+                },
+            };
         },
-        Err(e) => eprintln!("Error : {}", e.to_string()),
-    }
+        Err(e)=>{
+            eprintln!("An error occured while opening file {} : {}", PROPERTIES_FILE, e);
+        },
+    };
 
-    println!("All done, that's all folks...");
+}
+
+
+fn process_one_target(dir_from: &str, dir_to: &str, url: &str) {
+
+    fs::copy(dir_from, dir_to);
+
+    api::call_delete_on_url(url);
 }
