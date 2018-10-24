@@ -6,8 +6,7 @@ pub fn call_delete_on_url(url: &str) {
     let client = reqwest::Client::new();
     let res = client.delete(url).send();
     match  res {
-        Ok(s) =>
-        {
+        Ok(s) =>{
             println!("Result {} for calling {} in DELETE", s.status(), s.url());
         },
         Err(e) => eprintln!("Error : {}", e.to_string()),

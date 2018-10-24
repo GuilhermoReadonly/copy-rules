@@ -1,6 +1,6 @@
 extern crate fs_extra;
 
-pub fn copy(dir_from: &str, dir_to: &str) {
+pub fn copy(dir_from: &str, dir_to: &str) -> Result<u64, fs_extra::error::Error> {
     println!("Start copy");
     println!("From folder {}", dir_from);
     println!("To folder {}", dir_to);
@@ -13,10 +13,7 @@ pub fn copy(dir_from: &str, dir_to: &str) {
     };
 
     let from_paths = vec![dir_from];
-    let res = fs_extra::copy_items_with_progress(&from_paths, dir_to, &options, handle);
+    fs_extra::copy_items_with_progress(&from_paths, dir_to, &options, handle)
 
-    match res {
-        Err(e) => println!("Error !!! {}", e),
-        Ok(s) => println!("Copied successfully {} bytes !", s),
-    };
+
 }
