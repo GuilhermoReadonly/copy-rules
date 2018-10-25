@@ -17,3 +17,19 @@ pub fn copy(dir_from: &str, dir_to: &str) -> Result<u64, fs_extra::error::Error>
 
 
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn copy_no_from_path(){
+        let result = copy("/this/is/a/fake/path",".");
+
+        assert!(result.is_err(), "result : {:?}" ,result);
+    }
+   
+}
+
+
