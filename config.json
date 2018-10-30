@@ -7,10 +7,16 @@
             "url": "http://localhost:10089/rules-config-server/rules/cache"
         },
         {
-            "name": "balance",
-            "dir_from": "/mnt/c/Users/gra/IdeaProjects/SCPAS/services/rules/rule-config/rules-config-connector/src/main/resources/rules/",
-            "dir_to": "/mnt/c/Users/gra/IdeaProjects/SCPAS/docker/compose/target/demo/deliverables/volumes/connector/",
-            "url": "http://localhost:10089/rules-config-server/rules/cache"
+            "name": "balance-mandatory",
+            "dir_from": "/mnt/c/Users/gra/IdeaProjects/SCPAS/services/rules/rule-config/rules-config-scpas/src/main/resources/rules/Mandatory",
+            "dir_to": "/mnt/c/Users/gra/IdeaProjects/SCPAS/docker/compose/target/demo/deliverables/volumes/rules",
+            "url": "http://localhost:9189/rules-config-server/rules/cache"
+        },
+        {
+            "name": "balance-tenants",
+            "dir_from": "/mnt/c/Users/gra/IdeaProjects/SCPAS/services/rules/rule-config/rules-config-scpas/src/main/resources/rules/tenants",
+            "dir_to": "/mnt/c/Users/gra/IdeaProjects/SCPAS/docker/compose/target/demo/deliverables/volumes/rules",
+            "url": "http://localhost:9189/rules-config-server/rules/cache"
         }
     ]
 }
