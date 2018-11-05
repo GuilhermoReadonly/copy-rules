@@ -81,6 +81,8 @@ mod tests {
     use std::path::Path;
     use std::fs;
     use std::io;
+    use std::thread;
+    use std::time::Duration;
 
     const TEST_DIR: &str = "./test/";
     const TEST_DIR_1: &str = "./test/test_dir_1/";
@@ -100,14 +102,23 @@ mod tests {
 
         let result_clean = clean();
         assert!(result_clean.is_ok());
+        
+        result_setup.unwrap().join().unwrap();
     }
 
-    fn setup() -> Result<(), io::Error>{
+    fn setup() -> Result<thread::JoinHandle<()>, io::Error>{
         fs::create_dir_all(TEST_DIR_1)?;
         fs::OpenOptions::new().create(true).write(true).open(TEST_FILE)?;
         fs::create_dir_all(TEST_DIR_2)?;
+        
+        let handle = thread::spawn(|| {
+            for i in 1..10 {
+                println!("hi number {} from the spawned thread!", i);
+                thread::sleep(Duration::from_millis(1000));
+            }
+        });
 
-        Ok(())
+        Ok(handle)
     }
 
     fn clean() -> Result<(), io::Error>{
