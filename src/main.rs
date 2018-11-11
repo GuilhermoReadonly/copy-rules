@@ -1,4 +1,8 @@
 #[macro_use]
+extern crate log;
+extern crate log4rs;
+
+#[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 
@@ -12,12 +16,13 @@ mod configuration;
 
 
 fn main() {
+    log4rs::init_file("log4rs.yml", Default::default()).unwrap();
 
     let args: Vec<_> = env::args().collect();
     let mut properties_file: &str = "./config.json";
     
     if args.len() > 1 {
-        println!("The first argument is {}", args[1]);
+        info!("The first argument is {}", args[1]);
         properties_file = args[1].as_str();
     }
 
@@ -26,22 +31,22 @@ fn main() {
             match serde_json::from_str(&config){
                 Ok::<Configuration,serde_json::Error>(config)=>{
 
-                    println!("Configuration : {:#?}",config);
+                    info!("Configuration : {:#?}",config);
 
                     for job in &config.jobs {
                         treat_job(job);
                     }
 
-                    println!("All done, that's all folks...");
+                    info!("All done, that's all folks...");
 
                 },
                 Err(e) =>{
-                    eprintln!("An error occured while deserializing config from file {} : {}", properties_file, e);
+                    error!("An error occured while deserializing config from file {} : {}", properties_file, e);
                 },
             };
         },
         Err(e)=>{
-            eprintln!("An error occured while opening file {} : {}", properties_file, e);
+            error!("An error occured while opening file {} : {}", properties_file, e);
         },
     };
 }
@@ -51,13 +56,13 @@ fn main() {
 fn treat_job(job: &Job) {
     match job {
         Job::Copy(job_copy) => {
-            println!("Will treat {}", job_copy.name);
+            info!("Will treat {}", job_copy.name);
             match fs::copy(&job_copy.dir_from, &job_copy.dir_to) {
                 Ok(s) => {
-                    println!("Copied successfully {} bytes !", s);
+                    info!("Copied successfully {} bytes !", s);
                 },
                 Err(e) => {
-                    eprintln!("Error while treating {:?} !!! {}", job, e);
+                    error!("Error while treating {:?} !!! {}", job, e);
                 },
             };
         },
@@ -65,10 +70,10 @@ fn treat_job(job: &Job) {
             println!("Will treat {}", job_rest_call.name);
             match api::call_delete_on_url(&job_rest_call.url) {
                 Ok(s) =>{
-                    println!("Result {} for calling {} in DELETE", s.status(), s.url());
+                    info!("Result {} for calling {} in DELETE", s.status(), s.url());
                 },
                 Err(e) => {
-                    eprintln!("Error while treating {:?} !!! {}", job, e);
+                    error!("Error while treating {:?} !!! {}", job, e);
                 },
             };
         },
@@ -108,6 +113,7 @@ mod tests {
         fs::create_dir_all(TEST_DIR_2)?;
 
         Ok(())
+
     }
 
     fn clean() -> Result<(), io::Error>{
