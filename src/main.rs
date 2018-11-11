@@ -26,59 +26,32 @@ fn main() {
         properties_file = args[1].as_str();
     }
 
-    match std::fs::read_to_string(properties_file){
-        Ok(config)=>{
-            match serde_json::from_str(&config){
-                Ok::<Configuration,serde_json::Error>(config)=>{
+    let config: String = std::fs::read_to_string(properties_file).expect("An error occured while reading config file");
+    
+    let config: Configuration = serde_json::from_str(&config).expect("An error occured while deserializing config");
+    
+    info!("Configuration : {:#?}",config);
 
-                    info!("Configuration : {:#?}",config);
+    for job in &config.jobs{
+        match job {
+            Job::Copy(job_copy) => {
+                info!("Will treat {}", job_copy.name);
+                let nb_bytes = fs::copy(&job_copy.dir_from, &job_copy.dir_to).expect(&format!("Error while treating {:?} !!!", job));
+                info!("Copied successfully {} bytes !", nb_bytes);
+            },
+            Job::RestCall(job_rest_call) => {
+                info!("Will treat {}", job_rest_call.name);
+                let result = api::call_delete_on_url(&job_rest_call.url).expect(&format!("Error while treating {:?} !!!", job));
+                info!("Result {} for calling {} in DELETE", result.status(), result.url()); 
+            },
+        };
+    }
 
-                    for job in &config.jobs {
-                        treat_job(job);
-                    }
-
-                    info!("All done, that's all folks...");
-
-                },
-                Err(e) =>{
-                    error!("An error occured while deserializing config from file {} : {}", properties_file, e);
-                },
-            };
-        },
-        Err(e)=>{
-            error!("An error occured while opening file {} : {}", properties_file, e);
-        },
-    };
+    info!("All done, that's all folks...");
+    
 }
 
 
-
-fn treat_job(job: &Job) {
-    match job {
-        Job::Copy(job_copy) => {
-            info!("Will treat {}", job_copy.name);
-            match fs::copy(&job_copy.dir_from, &job_copy.dir_to) {
-                Ok(s) => {
-                    info!("Copied successfully {} bytes !", s);
-                },
-                Err(e) => {
-                    error!("Error while treating {:?} !!! {}", job, e);
-                },
-            };
-        },
-        Job::RestCall(job_rest_call) => {
-            println!("Will treat {}", job_rest_call.name);
-            match api::call_delete_on_url(&job_rest_call.url) {
-                Ok(s) =>{
-                    info!("Result {} for calling {} in DELETE", s.status(), s.url());
-                },
-                Err(e) => {
-                    error!("Error while treating {:?} !!! {}", job, e);
-                },
-            };
-        },
-    };
-}
 
 #[cfg(test)]
 mod tests {
@@ -111,9 +84,7 @@ mod tests {
         fs::create_dir_all(TEST_DIR_1)?;
         fs::OpenOptions::new().create(true).write(true).open(TEST_FILE)?;
         fs::create_dir_all(TEST_DIR_2)?;
-
         Ok(())
-
     }
 
     fn clean() -> Result<(), io::Error>{
