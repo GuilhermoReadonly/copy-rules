@@ -2,14 +2,15 @@
     "jobs": [
         {
             "name": "copy job",
-            "type": "Copy", 
+            "type": "Copy",
             "dir_from": "./test/test_dir_1/",
             "dir_to": "./test/test_dir_2/"
         },
         {
             "name": "rest job",
-            "type": "RestCall", 
-            "url": "http://localhost:7777/some/path/"
+            "type": "RestCall",
+            "url": "http://localhost:7777/some/path/",
+            "verb": "DELETE"
         }
     ]
 }

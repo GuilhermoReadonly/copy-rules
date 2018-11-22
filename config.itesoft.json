@@ -7,6 +7,12 @@
             "dir_to": "/Users/gra/IdeaProjects/SCPAS/fronts/forms/dev/0-app/config/"
         },
         {
+            "name": "connector rules mapping",
+            "type": "Copy",
+            "dir_from": "/Users/gra/Documents/Scpas files/mapping.js",
+            "dir_to": "/Users/gra/IdeaProjects/SCPAS/services/rules/rule-config/rules-config-connector/src/main/resources/rules/_utils/"
+        },
+        {
             "name": "connector rules copy",
             "type": "Copy",
             "dir_from": "/Users/gra/IdeaProjects/SCPAS/services/rules/rule-config/rules-config-connector/src/main/resources/rules/",
@@ -27,12 +33,20 @@
         {
             "name": "balance rest",
             "type": "RestCall",
-            "url": "http://localhost:9189/rules-config-server/rules/cache"
+            "url": "http://localhost:9189/rules-config-server/rules/cache",
+            "verb": "DELETE"
         },
         {
             "name": "connector rest",
             "type": "RestCall",
-            "url": "http://localhost:10089/rules-config-server/rules/cache"
+            "url": "http://localhost:10089/rules-config-server/rules/cache",
+            "verb": "DELETE"
+        },
+        {
+            "name": "notify all",
+            "type": "RestCall",
+            "url": "http://localhost:9188/00-register/endpoints/notifyAll",
+            "verb": "PUT"
         }
     ]
 }

@@ -13,6 +13,14 @@ pub enum Job {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub enum Verb {
+    DELETE,
+    PUT,
+    GET,
+    POST,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct JobCopy {
     pub name: String,
     pub dir_from: String,
@@ -23,4 +31,5 @@ pub struct JobCopy {
 pub struct JobRestCall {
     pub name: String,
     pub url: String,
+    pub verb: Verb,
 }
