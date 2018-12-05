@@ -9,7 +9,11 @@ use std::process;
 
 
 fn main() {
-    log4rs::init_file("log4rs.yml", Default::default()).expect("An error occured while reading log4rs.yml config file");
+
+    if let Err(e) = log4rs::init_file("log4rs.yml", Default::default()) {
+        println!("Error while reading log4rs.yml: {}", e);
+        process::exit(1);
+    }
 
     let args: Vec<String> = env::args().collect();
     let mut properties_file: &str = "./config.json";
@@ -19,9 +23,21 @@ fn main() {
         properties_file = &args[1];
     }
 
-    let config: String = std::fs::read_to_string(properties_file).expect("An error occured while reading config file");
+    let config: String = match std::fs::read_to_string(properties_file) {
+        Ok(f) => f,
+        Err(error) => {
+            error!("An error occured while reading config file: {:?}", error);
+            process::exit(1);
+        },
+    };
 
-    let config: Configuration = serde_json::from_str(&config).expect("An error occured while deserializing config");
+    let config: Configuration = match serde_json::from_str(&config) {
+        Ok(f) => f,
+        Err(error) => {
+            error!("An error occured while deserializing config: {:?}", error);
+            process::exit(1);
+        },
+    };
 
     info!("Start jobs");
     if let Err(e) = copy_rules::run(config) {
