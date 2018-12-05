@@ -1,52 +1,33 @@
 #[macro_use]
 extern crate log;
 extern crate log4rs;
+extern crate copy_rules;
 
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_json;
-
-use configuration::Configuration;
-use configuration::Job;
+use copy_rules::configuration::Configuration;
 use std::env;
-
-mod fs;
-mod api;
-mod configuration;
+use std::process;
 
 
 fn main() {
-    log4rs::init_file("log4rs.yml", Default::default()).unwrap();
+    log4rs::init_file("log4rs.yml", Default::default()).expect("An error occured while reading log4rs.yml config file");
 
-    let args: Vec<_> = env::args().collect();
+    let args: Vec<String> = env::args().collect();
     let mut properties_file: &str = "./config.json";
 
     if args.len() > 1 {
         info!("The first argument is {}", args[1]);
-        properties_file = args[1].as_str();
+        properties_file = &args[1];
     }
 
     let config: String = std::fs::read_to_string(properties_file).expect("An error occured while reading config file");
 
     let config: Configuration = serde_json::from_str(&config).expect("An error occured while deserializing config");
 
-    info!("Configuration : {:#?}",config);
-
-    for job in &config.jobs{
-        match job {
-            Job::Copy(job_copy) => {
-                info!("Will treat {}", job_copy.name);
-                let nb_bytes = fs::copy(&job_copy.dir_from, &job_copy.dir_to).expect(&format!("Error while treating {:?} !!!", job));
-                info!("Copied successfully {} bytes !", nb_bytes);
-            },
-            Job::RestCall(job_rest_call) => {
-                info!("Will treat {}", job_rest_call.name);
-                let result = api::call_verb_on_url(&job_rest_call.verb, &job_rest_call.url).expect(&format!("Error while treating {:?} !!!", job));
-                info!("Result {} for calling {} in {:?}", result.status(), result.url(), &job_rest_call.verb);
-            },
-        };
+    info!("Start jobs");
+    if let Err(e) = copy_rules::run(config) {
+        error!("Application error: {}", e);
+        process::exit(1);
     }
-
     info!("All done, that's all folks...");
 
 }
