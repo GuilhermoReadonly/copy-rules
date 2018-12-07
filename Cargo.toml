@@ -2,7 +2,7 @@
 name = "copy_rules"
 version = "0.1.0"
 authors = ["gra"]
-edition = "2015"
+edition = "2018"
 
 [dependencies]
 fs_extra = "1.1.0"

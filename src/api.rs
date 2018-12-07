@@ -1,6 +1,4 @@
-extern crate reqwest;
-
-use configuration::Verb;
+use crate::configuration::Verb;
 use std::error::Error;
 use std::fmt;
 
@@ -30,7 +28,7 @@ struct VerbNotImplemented {}
 impl Error for VerbNotImplemented {}
 
 impl fmt::Display for VerbNotImplemented {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "This verb is still not supported")
     }
 }

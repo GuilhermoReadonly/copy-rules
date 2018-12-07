@@ -1,5 +1,3 @@
-extern crate fs_extra;
-
 pub fn copy(dir_from: &str, dir_to: &str) -> Result<u64, fs_extra::error::Error> {
     debug!("Copy from folder {} to folder {}", dir_from, dir_to);
 
@@ -15,7 +13,6 @@ pub fn copy(dir_from: &str, dir_to: &str) -> Result<u64, fs_extra::error::Error>
 
 
 }
-
 
 #[cfg(test)]
 mod tests {

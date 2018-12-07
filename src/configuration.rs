@@ -1,5 +1,3 @@
-extern crate serde;
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Configuration {
     pub jobs: Vec<Job>,

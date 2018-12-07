@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate log;
-extern crate log4rs;
-extern crate copy_rules;
+
 
 use copy_rules::configuration::Configuration;
 use std::env;

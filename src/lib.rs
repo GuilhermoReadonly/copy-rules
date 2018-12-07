@@ -1,14 +1,12 @@
 #[macro_use]
 extern crate log;
-
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_json;
 
-use configuration::Named;
-use configuration::Runable;
-use configuration::Configuration;
-use configuration::Job;
+use crate::configuration::Named;
+use crate::configuration::Runable;
+use crate::configuration::Configuration;
+use crate::configuration::Job;
 use std::error::Error;
 
 mod fs;
