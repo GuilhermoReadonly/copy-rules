@@ -33,3 +33,28 @@ pub struct JobRestCall {
     pub url: String,
     pub verb: Verb,
 }
+
+pub trait Named {
+    fn get_name(&self) -> &str{
+        "Name to be implemented"
+    }
+}
+
+pub trait Runable {
+    fn run(&self) -> String{
+        "Result to be implemented".to_string()
+    }
+}
+
+impl Named for Job {
+    fn get_name(&self) -> &str {
+        match &self {
+            Job::Copy(job_copy) => {
+                &job_copy.name
+            },
+            Job::RestCall(job_rest_call) => {
+                &job_rest_call.name
+            },
+        }
+    }
+}

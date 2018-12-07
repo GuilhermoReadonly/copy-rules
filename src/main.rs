@@ -19,7 +19,7 @@ fn main() {
     let mut properties_file: &str = "./config.json";
 
     if args.len() > 1 {
-        info!("The first argument is {}", args[1]);
+        debug!("The first argument is {}", args[1]);
         properties_file = &args[1];
     }
 
