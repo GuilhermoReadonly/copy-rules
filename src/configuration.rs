@@ -1,13 +1,17 @@
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Configuration {
-    pub jobs: Vec<Job>,
+use crate::fs;
+use crate::api;
+
+pub trait Named {
+    fn get_name(&self) -> &str;
+}
+
+pub trait Runable {
+    fn run(&self) -> String;
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "type")]
-pub enum Job {
-    Copy(JobCopy),
-    RestCall(JobRestCall),
+pub struct Configuration {
+    pub jobs: Vec<Box<Runable>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -25,6 +29,19 @@ pub struct JobCopy {
     pub dir_to: String,
 }
 
+impl Runable for JobCopy {
+    fn run(&self) -> String {
+        let nb_bytes = fs::copy(&self.dir_from, &self.dir_to);
+        format!("{:?}", nb_bytes)
+    }
+}
+
+impl Named for JobCopy {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct JobRestCall {
     pub name: String,
@@ -32,27 +49,15 @@ pub struct JobRestCall {
     pub verb: Verb,
 }
 
-pub trait Named {
-    fn get_name(&self) -> &str{
-        "Name to be implemented"
+impl Runable for JobRestCall {
+    fn run(&self) -> String {
+        let result = api::call_verb_on_url(&self.verb, &self.url);
+        format!("{:?}", result)
     }
 }
 
-pub trait Runable {
-    fn run(&self) -> String{
-        "Result to be implemented".to_string()
-    }
-}
-
-impl Named for Job {
+impl Named for JobRestCall {
     fn get_name(&self) -> &str {
-        match &self {
-            Job::Copy(job_copy) => {
-                &job_copy.name
-            },
-            Job::RestCall(job_rest_call) => {
-                &job_rest_call.name
-            },
-        }
+        &self.name
     }
 }
